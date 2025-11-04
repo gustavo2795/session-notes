@@ -9,9 +9,9 @@ import {
   Stack,
 } from "@mui/material";
 import useSessionNotes from "../hooks/useSessionNotes";
-import supabase from "../../supabaseClient";
 import type { Note } from "../types/Notes";
 import { NotesList } from "../components/NotesList";
+import { createNote } from "../services/createNote";
 
 export default function SessionNote(): JSX.Element {
   const [clientName, setClientName] = useState("");
@@ -42,14 +42,13 @@ export default function SessionNote(): JSX.Element {
       const payload = {
         client_name: clientName.trim(),
         session_date: sessionDate,
-        notes: quickNotes.trim() || null,
-        duration: durationMinutes === "" ? null : Number(durationMinutes),
+        notes: quickNotes.trim() || undefined,
+        duration: durationMinutes === "" ? undefined : Number(durationMinutes),
       };
 
-      const { data, error: e } = await supabase.from("session_notes").insert([payload]).select().single();
+      const { data, error: e } = await createNote({ payload });
       if (e) throw e;
 
-      // If realtime isn't available, prepend the new note locally
       if (data) setNotes(prev => [data as Note, ...prev]);
 
       // Reset form

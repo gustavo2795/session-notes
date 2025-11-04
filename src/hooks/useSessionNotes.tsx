@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Note } from "../types/Notes";
-import supabase from "../../supabaseClient";
+import { getNotes } from "../services/getNotes";
 
 function useSessionNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -13,11 +13,7 @@ function useSessionNotes() {
     setError(null);
   
     try {
-    const { data, error: e } = await supabase
-    .from<Note>("session_notes")
-    .select("*")
-    .order("session_date", { ascending: false })
-    .limit(200);
+    const { data, error: e } = await getNotes();
 
     if (e) throw e;
     setNotes(data ?? []);

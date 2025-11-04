@@ -3,7 +3,7 @@ import React from "react";
 import { truncateNotes } from "../utils/truncateNotes";
 import type { Note } from "../types/Notes";
 import DeleteIcon from "@mui/icons-material/Delete";
-import supabase from "../../supabaseClient";
+import { deleteNote } from "../services/deleteNote";
 
 
 type Props = {
@@ -18,9 +18,9 @@ export const NotesList = ({ notes, loading, setNotes, setError }: Props) => {
   async function handleDelete(id: string) {
     if (!confirm("Delete this note?")) return;
     try {
-      const { error: e } = await supabase.from("session_notes").delete().eq("id", id);
+      const { error: e } = await deleteNote({ id });
       if (e) throw e;
-      setNotes(prev => prev.filter(n => n.id !== id));
+      setNotes(prev => prev.filter(n => n.id.toString() !== id));
     } catch (err: any) {
       console.error(err);
       setError(err.message || String(err));
@@ -39,7 +39,7 @@ export const NotesList = ({ notes, loading, setNotes, setError }: Props) => {
         <React.Fragment key={note.id}>
           <ListItem alignItems="flex-start" secondaryAction={
             <Tooltip title="Delete note">
-              <IconButton edge="end" onClick={() => handleDelete(note.id)}>
+              <IconButton edge="end" onClick={() => handleDelete(note.id.toString())}>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
